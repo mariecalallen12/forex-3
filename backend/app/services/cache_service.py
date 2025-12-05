@@ -216,9 +216,9 @@ class CacheService:
         
         key_string = ":".join(key_parts)
         
-        # Hash if too long
+        # Hash if too long - using SHA-256 for better security
         if len(key_string) > 200:
-            hash_part = hashlib.md5(key_string.encode()).hexdigest()[:16]
+            hash_part = hashlib.sha256(key_string.encode()).hexdigest()[:16]
             return f"{prefix}:{hash_part}"
         
         return key_string

@@ -103,9 +103,10 @@ class WalletBalance(Base, TimestampMixin):
     user = relationship("User", back_populates="wallet_balances")
     
     @property
-    def total_balance(self) -> float:
-        """Tổng số dư = available + locked"""
-        return float(self.available_balance or 0) + float(self.locked_balance or 0)
+    def total_balance(self) -> Decimal:
+        """Tổng số dư = available + locked (Decimal để giữ độ chính xác)"""
+        from decimal import Decimal
+        return Decimal(str(self.available_balance or 0)) + Decimal(str(self.locked_balance or 0))
     
     def __repr__(self):
         return f"<WalletBalance(user_id={self.user_id}, asset={self.asset}, balance={self.total_balance})>"

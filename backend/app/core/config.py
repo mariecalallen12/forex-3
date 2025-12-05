@@ -25,7 +25,8 @@ class Settings(BaseSettings):
     
     # =============== Cấu hình API ===============
     API_V1_STR: str = "/api"
-    SECRET_KEY: str = "your-super-secret-key-change-in-production-digital-utopia-2024"
+    # QUAN TRỌNG: Phải thay đổi SECRET_KEY trong production thông qua biến môi trường
+    SECRET_KEY: str = "CHANGE-THIS-IN-PRODUCTION-USE-ENV-VAR"
     ALGORITHM: str = "HS256"
     ACCESS_TOKEN_EXPIRE_MINUTES: int = 30
     REFRESH_TOKEN_EXPIRE_DAYS: int = 7

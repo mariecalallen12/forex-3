@@ -8,6 +8,7 @@ Business logic cho User operations
 from typing import Optional, List, Dict, Any
 from sqlalchemy.orm import Session
 from sqlalchemy import and_, or_
+from datetime import datetime
 import logging
 
 from ..models.user import User, UserProfile, Role
@@ -97,9 +98,14 @@ class UserService:
             
         Returns:
             User mới được tạo
+            
+        Raises:
+            ValueError: Nếu role không tồn tại
         """
         # Get role
         role = self.db.query(Role).filter(Role.name == role_name).first()
+        if not role:
+            logger.warning(f"Role '{role_name}' not found, creating user without role")
         
         # Create user
         user = User(
@@ -209,7 +215,6 @@ class UserService:
         
         # Reset failed attempts on success
         user.failed_login_attempts = 0
-        from datetime import datetime
         user.last_login_at = datetime.utcnow()
         self.db.commit()
         
