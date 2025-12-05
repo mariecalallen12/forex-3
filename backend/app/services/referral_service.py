@@ -19,6 +19,12 @@ from ..db.redis_client import RedisCache
 
 logger = logging.getLogger(__name__)
 
+# =============== Error Messages (Vietnamese) ===============
+MSG_CODE_NOT_FOUND = "Mã giới thiệu không tồn tại"
+MSG_CODE_INACTIVE = "Mã giới thiệu không còn hoạt động"
+MSG_CODE_EXPIRED = "Mã giới thiệu đã hết hạn"
+MSG_CODE_EXHAUSTED = "Mã giới thiệu đã hết lượt sử dụng"
+
 
 class ReferralService:
     """
@@ -134,16 +140,16 @@ class ReferralService:
         referral_code = self.get_code_by_code(code)
         
         if not referral_code:
-            return {"valid": False, "error": "Mã giới thiệu không tồn tại"}
+            return {"valid": False, "error": MSG_CODE_NOT_FOUND}
         
         if referral_code.status != "active":
-            return {"valid": False, "error": "Mã giới thiệu không còn hoạt động"}
+            return {"valid": False, "error": MSG_CODE_INACTIVE}
         
         if referral_code.expires_at and referral_code.expires_at < datetime.utcnow():
-            return {"valid": False, "error": "Mã giới thiệu đã hết hạn"}
+            return {"valid": False, "error": MSG_CODE_EXPIRED}
         
         if referral_code.max_uses and referral_code.used_count >= referral_code.max_uses:
-            return {"valid": False, "error": "Mã giới thiệu đã hết lượt sử dụng"}
+            return {"valid": False, "error": MSG_CODE_EXHAUSTED}
         
         return {
             "valid": True,

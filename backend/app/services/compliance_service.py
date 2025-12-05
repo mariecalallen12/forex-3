@@ -17,6 +17,11 @@ from ..db.redis_client import RedisCache
 
 logger = logging.getLogger(__name__)
 
+# =============== Constants ===============
+REQUIRED_KYC_DOCUMENT_TYPES = ["id_card", "selfie"]
+DEFAULT_AML_SOURCES = ["sanctions_list", "pep_list", "adverse_media"]
+RISK_ASSESSMENT_REVIEW_DAYS = 90
+
 
 class ComplianceService:
     """
@@ -133,10 +138,9 @@ class ComplianceService:
         # Check if all required documents are verified
         documents = self.get_user_kyc_documents(user_id)
         
-        required_types = ["id_card", "selfie"]
         verified_types = [d.document_type for d in documents if d.verification_status == "verified"]
         
-        all_verified = all(t in verified_types for t in required_types)
+        all_verified = all(t in verified_types for t in REQUIRED_KYC_DOCUMENT_TYPES)
         
         if all_verified:
             user = self.db.query(User).filter(User.id == user_id).first()
@@ -167,7 +171,7 @@ class ComplianceService:
             screening_type=screening_type,
             status="clean",
             risk_level="low",
-            sources_checked=["sanctions_list", "pep_list", "adverse_media"],
+            sources_checked=DEFAULT_AML_SOURCES,
             last_checked=datetime.utcnow()
         )
         
@@ -259,7 +263,7 @@ class ComplianceService:
             recommendations=risk_data["recommendations"],
             assessed_by=assessed_by,
             assessment_method="automated" if not assessed_by else "manual",
-            next_review_date=datetime.utcnow().date() + timedelta(days=90)
+            next_review_date=datetime.utcnow().date() + timedelta(days=RISK_ASSESSMENT_REVIEW_DAYS)
         )
         
         self.db.add(assessment)

@@ -253,8 +253,10 @@ def rate_limit(limit: int = 60, window: int = 60):
         credentials: HTTPAuthorizationCredentials = Depends(security),
         cache: RedisCache = Depends(get_redis)
     ):
-        # Use token as identifier
-        identifier = f"rate_limit:{credentials.credentials[:20]}"
+        import hashlib
+        # Use hash of token for secure rate limiting (not predictable)
+        token_hash = hashlib.sha256(credentials.credentials.encode()).hexdigest()[:16]
+        identifier = f"rate_limit:{token_hash}"
         
         cache_service = CacheService(cache)
         allowed, remaining = cache_service.check_rate_limit(identifier, limit, window)

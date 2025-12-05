@@ -9,10 +9,13 @@ import pytest
 from unittest.mock import Mock, MagicMock, patch
 from datetime import datetime, timedelta
 from decimal import Decimal
-
-# Import services
+import os
 import sys
-sys.path.insert(0, '/home/runner/work/forex-3/forex-3/backend')
+
+# Add backend to path for imports
+backend_path = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+if backend_path not in sys.path:
+    sys.path.insert(0, backend_path)
 
 from app.services.user_service import UserService
 from app.services.trading_service import TradingService
@@ -83,7 +86,7 @@ class TestUserService:
         mock_user.failed_login_attempts = 0
         self.mock_db.query.return_value.filter.return_value.first.return_value = mock_user
         
-        with patch('app.services.user_service.verify_password', return_value=True):
+        with patch('app.core.security.verify_password', return_value=True):
             # Execute
             result = self.service.authenticate("test@example.com", "password")
             
@@ -99,7 +102,7 @@ class TestUserService:
         mock_user.failed_login_attempts = 0
         self.mock_db.query.return_value.filter.return_value.first.return_value = mock_user
         
-        with patch('app.services.user_service.verify_password', return_value=False):
+        with patch('app.core.security.verify_password', return_value=False):
             # Execute
             result = self.service.authenticate("test@example.com", "wrongpassword")
             
